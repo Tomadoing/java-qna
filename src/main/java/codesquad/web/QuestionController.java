@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
+@RequestMapping("/questions")
 public class QuestionController {
 
     @Autowired
@@ -16,44 +17,43 @@ public class QuestionController {
     public QuestionController() {
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public String list(Model model) {
         model.addAttribute("questions", qRepository.findAll());
-        return "index";
+        return "qna/list";
     }
 
-    @GetMapping("/questions/{id}")
+    @GetMapping("/{id}")
     public String detail(@PathVariable long id, Model model) {
         model.addAttribute("question", qRepository.findById(id).get());
         return "qna/show";
     }
 
-    @GetMapping("/questions/write")
+    @GetMapping("/write")
     public String writeForm() {
         return "qna/form";
     }
 
-    @GetMapping("/questions/{id}/modify")
+    @GetMapping("/{id}/modify")
     public String modifyForm(@PathVariable long id, Model model) {
         model.addAttribute("question", qRepository.findById(id).get());
         return "qna/modifyForm";
     }
 
-    @PostMapping("/questions")
+    @PostMapping("")
     public String create(Question q, Model model) {
         qRepository.save(q);
         return "redirect:/";
     }
 
-    @PutMapping("/questions/{id}")
+    @PutMapping("/{id}")
     public String modify(@PathVariable long id, Question q, Model model) {
-        qRepository.findById(id).get();
-        q.setId(id);
-        qRepository.save(q);
+        Question maybeQuestion = qRepository.findById(id).get();
+        qRepository.save(maybeQuestion.modify(q));
         return "redirect:/";
     }
 
-    @DeleteMapping("/questions/{id}")
+    @DeleteMapping("/{id}")
     public String delete(@PathVariable long id) {
         qRepository.deleteById(id);
         return "redirect:/";

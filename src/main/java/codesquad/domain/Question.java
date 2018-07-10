@@ -1,9 +1,6 @@
 package codesquad.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -13,9 +10,17 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private Date time;
+
+    @Column(length = 30, nullable = false)
     private String writer;
+
+    @Column(length = 30, nullable = false)
     private String title;
+
+    @Lob
+    @Column(nullable = false)
     private String contents;
 
     public Question() {
@@ -27,6 +32,16 @@ public class Question {
         this.title = title;
         this.contents = contents;
         this.time = new Date();
+    }
+
+    public Question modify(Question q) {
+        if(this.id.equals(q.id))
+            throw new IllegalArgumentException("아이디가 달라용");
+        this.setWriter(q.writer);
+        this.setTitle(q.title);
+        this.setContents(q.contents);
+
+        return this;
     }
 
     public Long getId() {
