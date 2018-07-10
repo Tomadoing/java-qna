@@ -76,24 +76,27 @@ public class User {
     }
 
     public User modify(User u) {
-        if(!isSameId(u))
-            throw new IllegalArgumentException("아이디가 달라용");
-
-        if(!isCorrectPassword(u))
-            throw new IllegalArgumentException("비밀번호가 달라용");
-
+        validForModify(u);
         this.setName(u.name);
         this.setEmail(u.email);
 
         return this;
-
     }
 
-    private boolean isCorrectPassword(User u) {
-        return this.password.equals(u.password);
+    private void validForModify(User u) {
+        if(isDiffUserId(u)) throw new IllegalArgumentException("아이디가 달라용");
+        if(isUnCorrectPassword(u)) throw new IllegalArgumentException("비밀번호가 달라용");
     }
 
-    private boolean isSameId(User u) {
-        return this.id.equals(u.id);
+    private boolean isUnCorrectPassword(User u) {
+        return !this.password.equals(u.password);
+    }
+
+    private boolean isDiffUserId(User u) {
+        return !this.getUserId().equals(u.getUserId());
+    }
+
+    public boolean match(String pw) {
+        return this.getPassword().equals(pw);
     }
 }

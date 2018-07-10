@@ -1,5 +1,7 @@
 package codesquad.domain;
 
+import codesquad.exception.AuthorizationException;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -13,8 +15,9 @@ public class Question {
     @Column(nullable = false)
     private Date time;
 
-    @Column(length = 30, nullable = false)
-    private String writer;
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_question_writer"))
+    private User writer;
 
     @Column(length = 30, nullable = false)
     private String title;
@@ -27,7 +30,7 @@ public class Question {
         this.time = new Date();
     }
 
-    public Question(String writer, String title, String contents, Date time) {
+    public Question(User writer, String title, String contents, Date time) {
         this.writer = writer;
         this.title = title;
         this.contents = contents;
@@ -35,13 +38,17 @@ public class Question {
     }
 
     public Question modify(Question q) {
-        if(this.id.equals(q.id))
-            throw new IllegalArgumentException("아이디가 달라용");
+        validateId(q);
         this.setWriter(q.writer);
         this.setTitle(q.title);
         this.setContents(q.contents);
 
         return this;
+    }
+
+    private void validateId(Question q) {
+        if(!this.id.equals(q.id))
+            throw new IllegalArgumentException("아이디가 달라용");
     }
 
     public Long getId() {
@@ -60,11 +67,11 @@ public class Question {
         this.time = time;
     }
 
-    public String getWriter() {
-        return writer;
+    public User getWriter() {
+        return this.writer;
     }
 
-    public void setWriter(String writer) {
+    public void setWriter(User writer) {
         this.writer = writer;
     }
 
@@ -82,5 +89,11 @@ public class Question {
 
     public void setContents(String contents) {
         this.contents = contents;
+    }
+
+    public void validateWriter(User user) {
+        if (!this.getWriter().getName().equals(user.getName())) {
+            throw new AuthorizationException();
+        }
     }
 }
