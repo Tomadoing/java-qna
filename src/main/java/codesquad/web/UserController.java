@@ -2,7 +2,7 @@ package codesquad.web;
 
 import codesquad.domain.User;
 import codesquad.domain.UserRepository;
-import codesquad.exception.NotFoundUserException;
+import codesquad.exception.NotFoundException;
 import codesquad.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -44,16 +44,12 @@ public class UserController {
 
 
     private User login(String userId, String password) {
-        User user = userRepository.findByUserId(userId).orElseThrow(NotFoundUserException::new);
-        if(!user.match(password))
-            throw new IllegalArgumentException();
-
-        return user;
+        return userRepository.findByUserId(userId).filter(u -> u.match(password)).orElseThrow(NotFoundException::new);
     }
 
     @GetMapping("/{id}")
     public String show(@PathVariable long id, Model model) {
-        User user = userRepository.findById(id).orElseThrow(NotFoundUserException::new);
+        User user = userRepository.findById(id).orElseThrow(NotFoundException::new);
         model.addAttribute("user", user);
         return "/user/profile";
     }

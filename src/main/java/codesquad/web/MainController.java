@@ -9,6 +9,6 @@ public class MainController {
 
     @GetMapping("/")
     public String show() {
-        return "index";
+        return "redirect:/questions";
     }
 }

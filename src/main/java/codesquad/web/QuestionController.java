@@ -4,7 +4,7 @@ import codesquad.domain.Question;
 import codesquad.domain.QuestionRepository;
 import codesquad.domain.User;
 import codesquad.exception.AuthorizationException;
-import codesquad.exception.NotFoundUserException;
+import codesquad.exception.NotFoundException;
 import codesquad.exception.NotLoginException;
 import codesquad.session.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +60,9 @@ public class QuestionController {
     }
 
     @PutMapping("/{id}")
-    public String modify(@PathVariable long id, Question q, Model model) {
-        Question maybeQuestion = qRepository.findById(id).get();
+    public String modify(@PathVariable long id, Question q, HttpSession session) {
+        User user = Session.getUser(session);
+        Question maybeQuestion = qRepository.findById(id).filter(u -> u.validateWriter(user)).orElseThrow(NotFoundException::new);
         qRepository.save(maybeQuestion.modify(q));
         return "redirect:/questions";
     }
@@ -75,7 +76,7 @@ public class QuestionController {
         return "redirect:/questions";
     }
 
-    @ExceptionHandler({NotLoginException.class, NotFoundUserException.class, AuthorizationException.class})
+    @ExceptionHandler({NotLoginException.class, NotFoundException.class, AuthorizationException.class})
     public String handleNotLogin() {
         return "redirect:/users/login";
     }

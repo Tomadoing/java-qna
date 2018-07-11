@@ -38,17 +38,11 @@ public class Question {
     }
 
     public Question modify(Question q) {
-        validateId(q);
         this.setWriter(q.writer);
         this.setTitle(q.title);
         this.setContents(q.contents);
 
         return this;
-    }
-
-    private void validateId(Question q) {
-        if(!this.id.equals(q.id))
-            throw new IllegalArgumentException("아이디가 달라용");
     }
 
     public Long getId() {
@@ -91,9 +85,10 @@ public class Question {
         this.contents = contents;
     }
 
-    public void validateWriter(User user) {
-        if (!this.getWriter().getName().equals(user.getName())) {
+    public boolean validateWriter(User user) {
+        if(!this.getWriter().equals(user)){
             throw new AuthorizationException();
         }
+        return true;
     }
 }
